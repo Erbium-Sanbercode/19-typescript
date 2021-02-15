@@ -25,7 +25,7 @@ refresh.onclick = () => {
   store$.dispatch<any>(summary);
 };
 
-function render(state: Performance) {
+function render(state:Performance) {
   // render error
   if (errorTxt && loadingTxt) {
     if (state?.error) {
@@ -34,9 +34,10 @@ function render(state: Performance) {
       errorTxt.textContent = '';
     }
     if (state?.loading) {
-      loadingTxt.style = '';
+      if(loadingTxt){}
+      loadingTxt.style.removeProperty('display');
     } else {
-      loadingTxt.style = 'display:none;';
+      loadingTxt.style.display = 'display:none;';
     }
   } else{
 
