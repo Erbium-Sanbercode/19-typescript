@@ -1,4 +1,8 @@
 node_modules
-service/performance
-service/tasks
-webapp
+# service/performance
+# service/tasks
+# webapp 
+service
+webapp/src/tasks
+webapp/src/worker
+webapp/src/lib

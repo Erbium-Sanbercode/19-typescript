@@ -2,7 +2,7 @@ export interface SummaryObj {
   total_task: number;
   task_done: number;
   task_cancelled: number;
-	total_worker: number;
+  total_worker: number;
 }
 
 export interface Performance {
@@ -41,15 +41,21 @@ export function loading(state: Performance): Performance {
   return state;
 }
 
-export function error(state: Performance, action: ActionObjectError): Performance {
+export function error(
+  state: Performance,
+  action: ActionObjectError
+): Performance {
   state.loading = false;
   state.error = action?.payload;
   return state;
 }
 
-export function summaryLoaded(state: Performance, action: ActionSummaryLoaded): Performance {
+export function summaryLoaded(
+  state: Performance,
+  action: ActionSummaryLoaded
+): Performance {
   state.summary = action?.payload;
   state.loading = false;
   state.error = null;
-  return state; 
+  return state;
 }

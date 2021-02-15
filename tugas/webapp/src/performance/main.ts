@@ -25,7 +25,7 @@ refresh.onclick = () => {
   store$.dispatch<any>(summary);
 };
 
-function render(state:Performance) {
+function render(state: Performance) {
   // render error
   if (errorTxt && loadingTxt) {
     if (state?.error) {
@@ -34,15 +34,13 @@ function render(state:Performance) {
       errorTxt.textContent = '';
     }
     if (state?.loading) {
-      if(loadingTxt){}
-      loadingTxt.style.removeProperty('display');
-    } else {
-      loadingTxt.style.display = 'display:none;';
+      if (loadingTxt) {
+        loadingTxt.style.removeProperty('display');
+      } else {
+        loadingTxt.style.display = 'display:none;';
+      }
     }
-  } else{
-
   }
-  
   // render list of worker
   workers.innerText = state?.summary?.total_worker.toString();
   tasks.innerText = state?.summary?.total_task.toString();

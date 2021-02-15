@@ -1,5 +1,5 @@
 import { loadingAction, errorAction, summaryLoadedAction } from './store';
-import perfSvc from './performance.client';
+import * as perfSvc from './performance.client';
 
 export const summary = async (dispatch) => {
   dispatch(loadingAction());

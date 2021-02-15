@@ -1,8 +1,4 @@
-import {
-  createAction,
-  createReducer,
-  configureStore,
-} from '@reduxjs/toolkit';
+import { createAction, createReducer, configureStore } from '@reduxjs/toolkit';
 import { initialState, error, loading, summaryLoaded } from './reducer';
 import thunkMiddleware from 'redux-thunk';
 import { SummaryObj } from './reducer';
@@ -15,7 +11,9 @@ enum ActionType {
 
 export const errorAction = createAction<string>(ActionType.ERROR);
 export const loadingAction = createAction(ActionType.LOADING);
-export const summaryLoadedAction = createAction<SummaryObj>(ActionType.SUMMARYLOADED);
+export const summaryLoadedAction = createAction<SummaryObj>(
+  ActionType.SUMMARYLOADED
+);
 
 const reducer = createReducer(initialState, {
   [ActionType.ERROR]: error,
@@ -25,5 +23,5 @@ const reducer = createReducer(initialState, {
 
 export const store$ = configureStore({
   reducer,
-  middleware: [thunkMiddleware.default],
+  middleware: [thunkMiddleware],
 });
