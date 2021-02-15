@@ -1,12 +1,14 @@
+export interface SummaryObj {
+  total_task: number;
+  task_done: number;
+  task_cancelled: number;
+	total_worker: number;
+}
+
 export interface Performance {
   loading: boolean;
   error: string;
-  summary: {
-    total_task: number,
-    task_done: number,
-    task_cancelled: number,
-    total_worker: number,
-  };
+  summary: SummaryObj;
 }
 
 interface ActionObject {
@@ -18,12 +20,7 @@ interface ActionObjectError extends ActionObject {
 }
 
 interface ActionSummaryLoaded extends ActionObject {
-  payload: {
-    total_task: number,
-    task_done: number,
-    task_cancelled: number,
-    total_worker: number,
-  };
+  payload: SummaryObj;
 }
 
 // setup state
@@ -38,14 +35,16 @@ export const initialState: Performance = {
   },
 };
 
-export function loading(state: Performance) {
+export function loading(state: Performance): Performance {
   state.loading = true;
   state.error = null;
+  return state;
 }
 
-export function error(state: Performance, action: ActionObjectError) {
+export function error(state: Performance, action: ActionObjectError): Performance {
   state.loading = false;
   state.error = action?.payload;
+  return state;
 }
 
 export function summaryLoaded(state: Performance, action: ActionSummaryLoaded): Performance {
