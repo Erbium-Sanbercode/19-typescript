@@ -1,4 +1,7 @@
 node_modules
-service/performance
-service/tasks
+# service/performance
 webapp
+service/lib
+service/tasks
+service/config.js
+service/main.js
