@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "sample service mesh implementation",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "test": "nyc mocha",
     "svc:start": "node .",

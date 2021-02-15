@@ -1,14 +1,13 @@
-import { createServer } from 'http';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 import * as url from 'url';
 import { stdout } from 'process';
 import { summarySvc } from './performance.service';
 import * as agg from './performance.agg';
-import { config } from '../config';
 
 let server;
 
-export function run(callback) {
-  server = createServer((req, res) => {
+export function run(callback: () => unknown): void {
+  server = createServer((req: IncomingMessage, res: ServerResponse) => {
     // cors
     const aborted = cors(req, res);
     if (aborted) {
@@ -59,7 +58,7 @@ export function run(callback) {
   });
 }
 
-export function cors(req, res) {
+export function cors(req: IncomingMessage, res: ServerResponse): boolean {
   // handle preflight request
   res?.setHeader('Access-Control-Allow-Origin', '*');
   res?.setHeader('Access-Control-Request-Method', '*');
@@ -73,7 +72,7 @@ export function cors(req, res) {
   }
 }
 
-export function stop() {
+export function stop(): void {
   if (server) {
     server.close();
   }

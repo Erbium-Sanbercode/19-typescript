@@ -1,4 +1,4 @@
-import bus from '../lib/bus';
+import * as bus from '../lib/bus';
 import {
   increaseTotalTask,
   increaseDoneTask,
@@ -13,7 +13,7 @@ let increaseCancelledTaskSub;
 let increaseTotalWorkerSub;
 let decreaseTotalWorkerSub;
 
-export function run() {
+export function run(): void {
   increaseTotalTaskSub = bus.subscribe('task.added', increaseTotalTask);
   increaseDoneTaskSub = bus.subscribe('task.done', increaseDoneTask);
   increaseCancelledTaskSub = bus.subscribe(
@@ -27,7 +27,7 @@ export function run() {
   decreaseTotalWorkerSub = bus.subscribe('worker.removed', decreaseTotalWorker);
 }
 
-export function stop() {
+export function stop(): void {
   if (increaseTotalTaskSub) {
     bus.unsubscribe(increaseTotalTaskSub);
   }

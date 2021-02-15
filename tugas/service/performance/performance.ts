@@ -22,35 +22,35 @@ export async function summary(): Promise<SummaryObj> {
   return data;
 }
 
-export async function increaseTotalTask() {
+export async function increaseTotalTask(): Promise<void> {
   const raw = await read(TASK_TOTAL_KEY);
   let val = parseInt(raw || '0', 10);
   val++;
   await save(TASK_TOTAL_KEY, val);
 }
 
-export async function increaseDoneTask() {
+export async function increaseDoneTask(): Promise<void> {
   const raw = await read(TASK_DONE_KEY);
   let val = parseInt(raw || '0', 10);
   val++;
   await save(TASK_DONE_KEY, val);
 }
 
-export async function increaseCancelledTask() {
+export async function increaseCancelledTask(): Promise<void> {
   const raw = await read(TASK_CANCELLED_KEY);
   let val = parseInt(raw || '0', 10);
   val++;
   await save(TASK_CANCELLED_KEY, val);
 }
 
-export async function increaseTotalWorker() {
+export async function increaseTotalWorker(): Promise<void> {
   const raw = await read(WORKER_TOTAL_KEY);
   let val = parseInt(raw || '0', 10);
   val++;
   await save(WORKER_TOTAL_KEY, val);
 }
 
-export async function decreaseTotalWorker() {
+export async function decreaseTotalWorker(): Promise<void> {
   const raw = await read(WORKER_TOTAL_KEY);
   let val = parseInt(raw || '0', 10);
   if (val > 0) {
