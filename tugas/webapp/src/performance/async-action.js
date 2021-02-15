@@ -1,10 +1,11 @@
-const { loadingAction, errorAction, summaryLoadedAction } = require('./store');
-const perfSvc = require('./performance.client');
+import { loadingAction, errorAction, summaryLoadedAction } from './store';
 
-exports.summary = async (dispatch) => {
+import { summary as summaryClient } from './performance.client';
+
+export const summary = async (dispatch) => {
   dispatch(loadingAction());
   try {
-    const summary = await perfSvc.summary();
+    const summary = await summaryClient();
     dispatch(summaryLoadedAction(summary));
   } catch (err) {
     dispatch(errorAction('gagal memuat informasi kinerja'));
