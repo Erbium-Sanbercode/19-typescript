@@ -1,4 +1,4 @@
-const rc = require('rc');
+import * as rc from 'rc';
 
 const defaultConfig = {
   database: {
@@ -23,8 +23,8 @@ const defaultConfig = {
   },
 };
 
-const config = rc('tm', defaultConfig);
+export const config = rc('tm', defaultConfig);
 
-module.exports = {
-  config,
-};
+// module.exports = {
+//   config,
+// };
