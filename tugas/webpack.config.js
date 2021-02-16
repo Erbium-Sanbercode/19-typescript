@@ -4,8 +4,8 @@ const path = require('path');
 module.exports = {
   entry: {
     tasks: './webapp/src/tasks/main.js',
-    worker: './webapp/src/worker/main.js',
-    performance: './webapp/src/performance/main.js',
+    worker: './webapp/src/worker/main.ts',
+    performance: './webapp/src/performance/main.ts',
   },
   output: {
     path: path.resolve(__dirname, 'www'),
