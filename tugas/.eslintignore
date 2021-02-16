@@ -1,7 +1,2 @@
 node_modules
-# service/performance
 webapp
-service/lib
-service/tasks
-service/config.js
-service/main.js
