@@ -1,26 +1,26 @@
-const Busboy = require('busboy');
-const url = require('url');
-const mime = require('mime-types');
-const { Writable } = require('stream');
-const {
-  register,
+import * as Busboy from 'busboy';
+import * as url from 'url';
+import * as mime from 'mime-types';
+import { Writable } from 'stream';
+import {
+  add,
+  cancel,
+  done,
   list,
-  remove,
-  info,
-  ERROR_REGISTER_DATA_INVALID,
-  ERROR_WORKER_NOT_FOUND,
-} = require('./worker');
-const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
+  ERROR_TASK_DATA_INVALID,
+  ERROR_TASK_NOT_FOUND,
+} from './task';
+import { saveFile, readFile, ERROR_FILE_NOT_FOUND } from '../lib/storage';
+import { IncomingMessage, ServerResponse } from 'http';
+import { TaskData } from './task.model';
 
-function registerSvc(req, res) {
+export function addSvc(req: IncomingMessage, res: ServerResponse): void {
   const busboy = new Busboy({ headers: req.headers });
 
-  const data = {
-    name: '',
-    age: 0,
-    bio: '',
-    address: '',
-    photo: '',
+  const data: TaskData = {
+    job: '',
+    assigneeId: 0,
+    attachment: '',
   };
 
   let finished = false;
@@ -28,26 +28,27 @@ function registerSvc(req, res) {
   function abort() {
     req.unpipe(busboy);
     if (!req.aborted) {
-      res.statusCode = 413;
+      res.statusCode = 500;
+      res.write('internal server error');
       res.end();
     }
   }
 
   busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
     switch (fieldname) {
-      case 'photo':
+      case 'attachment':
         try {
-          data.photo = await saveFile(file, mimetype);
+          data.attachment = await saveFile(file, mimetype);
         } catch (err) {
           abort();
         }
         if (!req.aborted && finished) {
           try {
-            const worker = await register(data);
+            const task = await add(data);
             res.setHeader('content-type', 'application/json');
-            res.write(JSON.stringify(worker));
+            res.write(JSON.stringify(task));
           } catch (err) {
-            if (err === ERROR_REGISTER_DATA_INVALID) {
+            if (err === ERROR_TASK_DATA_INVALID) {
               res.statusCode = 401;
             } else {
               res.statusCode = 500;
@@ -69,8 +70,13 @@ function registerSvc(req, res) {
   });
 
   busboy.on('field', (fieldname, val) => {
-    if (['name', 'age', 'bio', 'address'].includes(fieldname)) {
-      data[fieldname] = val;
+    switch (fieldname) {
+      case 'job':
+        data.job = val;
+        break;
+      case 'assignee_id':
+        data.assigneeId = parseInt(val, 10);
+        break;
     }
   });
 
@@ -84,11 +90,14 @@ function registerSvc(req, res) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res) {
+export async function listSvc(
+  req: IncomingMessage,
+  res: ServerResponse
+): Promise<void> {
   try {
-    const workers = await list();
+    const tasks = await list();
     res.setHeader('content-type', 'application/json');
-    res.write(JSON.stringify(workers));
+    res.write(JSON.stringify(tasks));
     res.end();
   } catch (err) {
     res.statusCode = 500;
@@ -97,7 +106,10 @@ async function listSvc(req, res) {
   }
 }
 
-async function infoSvc(req, res) {
+export async function doneSvc(
+  req: IncomingMessage,
+  res: ServerResponse
+): Promise<void> {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
@@ -107,40 +119,14 @@ async function infoSvc(req, res) {
     return;
   }
   try {
-    const worker = await info(id);
-    res.setHeader('content-type', 'application/json');
-    res.write(JSON.stringify(worker));
-    res.end();
-  } catch (err) {
-    if (err === ERROR_WORKER_NOT_FOUND) {
-      res.statusCode = 404;
-      res.write(err);
-      res.end();
-      return;
-    }
-    res.statusCode = 500;
-    res.end();
-    return;
-  }
-}
-
-async function removeSvc(req, res) {
-  const uri = url.parse(req.url, true);
-  const id = uri.query['id'];
-  if (!id) {
-    res.statusCode = 401;
-    res.write('parameter id tidak ditemukan');
-    res.end();
-    return;
-  }
-  try {
-    const worker = await remove(id);
+    const idInt = parseInt(id.toString());
+    const task = await done(idInt);
     res.setHeader('content-type', 'application/json');
     res.statusCode = 200;
-    res.write(JSON.stringify(worker));
+    res.write(JSON.stringify(task));
     res.end();
   } catch (err) {
-    if (err === ERROR_WORKER_NOT_FOUND) {
+    if (err === ERROR_TASK_NOT_FOUND) {
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -152,9 +138,44 @@ async function removeSvc(req, res) {
   }
 }
 
-async function getPhotoSvc(req, res) {
+export async function cancelSvc(
+  req: IncomingMessage,
+  res: ServerResponse
+): Promise<void> {
   const uri = url.parse(req.url, true);
-  const objectName = uri.pathname.replace('/photo/', '');
+  const id = uri.query['id'];
+  if (!id) {
+    res.statusCode = 401;
+    res.write('parameter id tidak ditemukan');
+    res.end();
+    return;
+  }
+  try {
+    const idInt = parseInt(id.toString());
+    const task = await cancel(idInt);
+    res.setHeader('content-type', 'application/json');
+    res.statusCode = 200;
+    res.write(JSON.stringify(task));
+    res.end();
+  } catch (err) {
+    if (err === ERROR_TASK_NOT_FOUND) {
+      res.statusCode = 404;
+      res.write(err);
+      res.end();
+      return;
+    }
+    res.statusCode = 500;
+    res.end();
+    return;
+  }
+}
+
+export async function getAttachmentSvc(
+  req: IncomingMessage,
+  res: ServerResponse
+): Promise<void> {
+  const uri = url.parse(req.url, true);
+  const objectName = uri.pathname.replace('/attachment/', '');
   if (!objectName) {
     res.statusCode = 400;
     res.write('request tidak sesuai');
@@ -178,11 +199,3 @@ async function getPhotoSvc(req, res) {
     return;
   }
 }
-
-module.exports = {
-  listSvc,
-  registerSvc,
-  infoSvc,
-  removeSvc,
-  getPhotoSvc,
-};

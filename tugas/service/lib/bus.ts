@@ -1,12 +1,15 @@
-const nats = require('nats');
+import * as nats from 'nats';
 
 let client;
 
-function connect(url, config) {
+export function connect(
+  url?: string,
+  config?: nats.ClientOpts
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     client = nats.connect(url, config);
     client.on('connect', () => {
-      resolve();
+      resolve('connected to bus');
     });
     client.on('error', (err) => {
       reject(err);
@@ -14,29 +17,21 @@ function connect(url, config) {
   });
 }
 
-function publish(subject, data) {
+export function publish(subject: string, data = {}): void {
   client.publish(subject, JSON.stringify(data));
 }
 
-function subscribe(subject, callback) {
+export function subscribe(subject: string, callback: string): string {
   return client.subscribe(subject, callback);
 }
 
-function unsubscribe(sid) {
+export function unsubscribe(sid: number): string {
   return client.unsubscribe(sid);
 }
 
-function close() {
+export function close(): void {
   if (!client) {
     return;
   }
   client.close();
 }
-
-module.exports = {
-  connect,
-  publish,
-  subscribe,
-  unsubscribe,
-  close,
-};
