@@ -1,5 +1,5 @@
-const { register, getList, remove } = require('./async-action');
-const { store$, errorAction, clearErrorAction } = require('./store');
+import { register, getList, remove } from './async-action';
+import { store$, errorAction, clearErrorAction } from './store';
 
 require('./main.css');
 
@@ -17,11 +17,11 @@ form.onsubmit = (event) => {
   event.preventDefault();
   store$.dispatch(clearErrorAction());
   if (
-    !name.value ||
-    !age.value ||
+    !name.nodeValue ||
+    !age.nodeValue ||
     !photo.files[0] ||
-    !bio.value ||
-    !address.value
+    !bio.nodeValue ||
+    !address.nodeValue
   ) {
     store$.dispatch(errorAction('form isian tidak lengkap!'));
     return;
@@ -30,11 +30,11 @@ form.onsubmit = (event) => {
   // register user
   store$.dispatch(
     register({
-      name: name.value,
+      name: name.nodeValue,
       photo: photo.files[0],
-      age: age.value,
-      bio: bio.value,
-      address: address.value,
+      age: age.nodeValue,
+      bio: bio.nodeValue,
+      address: address.nodeValue,
     })
   );
 
@@ -60,9 +60,9 @@ function render(state) {
     errorTxt.textContent = '';
   }
   if (state.loading) {
-    loadingTxt.style = '';
+    loadingTxt.setAttribute('style', '');
   } else {
-    loadingTxt.style = 'display:none;';
+    loadingTxt.setAttribute('style', 'display:none;');
   }
 
   // render list of worker

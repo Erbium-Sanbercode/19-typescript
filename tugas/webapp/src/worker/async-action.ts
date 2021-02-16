@@ -1,13 +1,25 @@
-const {
+import {
   loadingAction,
   errorAction,
   registeredAction,
   removedAction,
   workersLoadedAction,
-} = require('./store');
-const workerSvc = require('./worker.client');
+  store$,
+} from './store';
+import * as workerSvc from './worker.client';
 
-exports.register = (data) => async (dispatch) => {
+export interface WorkerInterface {
+  id?: number;
+  name: string;
+  age: string;
+  bio: string;
+  address: string;
+  photo: string | unknown;
+}
+
+export const register = (data: WorkerInterface) => async (
+  dispatch: typeof store$.dispatch
+): Promise<void> => {
   dispatch(loadingAction());
   try {
     const worker = await workerSvc.register(data);
@@ -17,7 +29,9 @@ exports.register = (data) => async (dispatch) => {
   }
 };
 
-exports.remove = (id) => async (dispatch) => {
+export const remove = (id: string) => async (
+  dispatch: typeof store$.dispatch
+): Promise<void> => {
   dispatch(loadingAction());
   try {
     await workerSvc.remove(id);
@@ -27,7 +41,9 @@ exports.remove = (id) => async (dispatch) => {
   }
 };
 
-exports.getList = async (dispatch) => {
+export const getList = async (
+  dispatch: typeof store$.dispatch
+): Promise<void> => {
   dispatch(loadingAction());
   try {
     const workers = await workerSvc.list();

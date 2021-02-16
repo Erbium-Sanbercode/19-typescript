@@ -1,2 +1,4 @@
 node_modules
-webapp
+webapp/src/lib
+webapp/src/performance
+webapp/src/tasks
