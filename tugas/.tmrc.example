@@ -4,8 +4,8 @@
     "host": "localhost",
     "port": 5432,
     "username": "postgres",
-    "password": "passpostgres1997",
-    "database": "sanbercode2"
+    "password": "passpost",
+    "database": "sanbercode"
   },
   "server": {
     "workerPort": 7001,
@@ -14,9 +14,9 @@
   },
   "minio": {
     "endPoint": "127.0.0.1",
-    "port": 1111,
+    "port": 9000,
     "useSSL": false,
     "accessKey": "minio",
-    "secretKey": "12345678"
+    "secretKey": "minioadmin"
   }
 }
