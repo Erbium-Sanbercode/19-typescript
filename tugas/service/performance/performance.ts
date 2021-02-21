@@ -26,7 +26,7 @@ export async function increaseTotalTask(): Promise<void> {
   const raw = await read(TASK_TOTAL_KEY);
   let val = parseInt(raw || '0', 10);
   val++;
-  await save(TASK_TOTAL_KEY, val);
+  await save(TASK_TOTAL_KEY, val).toString();
 }
 
 export async function increaseDoneTask(): Promise<void> {
