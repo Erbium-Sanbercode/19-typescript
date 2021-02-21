@@ -1,6 +1,13 @@
 import * as redis from 'redis';
 import { promisify } from 'util';
 
+export interface SummaryObj {
+  total_task: number;
+  task_done: number;
+  task_cancelled: number;
+  total_worker: number;
+}
+
 let client;
 
 export function connect(options?: []): Promise<string> {
@@ -15,12 +22,12 @@ export function connect(options?: []): Promise<string> {
   });
 }
 
-export function save(db: string, data: string): number {
+export function save(db: string, data: number): string {
   const setAsync = promisify(client.set).bind(client);
   return setAsync(db, data);
 }
 
-export async function read(db: string): Promise<unknown> {
+export async function read(db: string): Promise<string> {
   const getAsync = promisify(client.get).bind(client);
   const val = await getAsync(db);
   return JSON.parse(val);

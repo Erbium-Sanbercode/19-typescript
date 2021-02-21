@@ -14,17 +14,23 @@ let increaseTotalWorkerSub;
 let decreaseTotalWorkerSub;
 
 export function run(): void {
-  increaseTotalTaskSub = bus.subscribe('task.added', increaseTotalTask);
-  increaseDoneTaskSub = bus.subscribe('task.done', increaseDoneTask);
+  increaseTotalTaskSub = bus.subscribe(
+    'task.added',
+    increaseTotalTask.toString()
+  );
+  increaseDoneTaskSub = bus.subscribe('task.done', increaseDoneTask.toString());
   increaseCancelledTaskSub = bus.subscribe(
     'task.cancelled',
-    increaseCancelledTask
+    increaseCancelledTask.toString()
   );
   increaseTotalWorkerSub = bus.subscribe(
     'worker.registered',
-    increaseTotalWorker
+    increaseTotalWorker.toString()
   );
-  decreaseTotalWorkerSub = bus.subscribe('worker.removed', decreaseTotalWorker);
+  decreaseTotalWorkerSub = bus.subscribe(
+    'worker.removed',
+    decreaseTotalWorker.toString()
+  );
 }
 
 export function stop(): void {
