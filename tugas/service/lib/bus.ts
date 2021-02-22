@@ -1,34 +1,54 @@
-import * as nats from 'nats';
+import { connect as natsConnect, Client, ClientOpts } from 'nats';
 
-let client;
+let client: Client;
 
-export function connect(
-  url?: string,
-  config?: nats.ClientOpts
-): Promise<unknown> {
+/**
+ * connect to message bus
+ * @param url nats url
+ * @param config nats additional configuration
+ */
+export function connect(url: string, config?: ClientOpts): Promise<null> {
   return new Promise((resolve, reject) => {
-    client = nats.connect(url, config);
+    client = natsConnect(url, config);
     client.on('connect', () => {
-      resolve('connected to bus');
+      resolve(null);
     });
-    client.on('error', (err) => {
+    client.on('error', (err: Error) => {
       reject(err);
     });
   });
 }
 
-export function publish(subject: string, data = {}): void {
+/**
+ * publish a topic with a payload
+ * @param subject
+ * @param data
+ */
+export function publish(subject: string, data: { [key: string]: any }): void {
   client.publish(subject, JSON.stringify(data));
 }
 
-export function subscribe(subject: string, callback: string): string {
+/**
+ * subscribe a topic
+ * @param subject
+ * @param callback
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function subscribe(subject: string, callback: Function): number {
   return client.subscribe(subject, callback);
 }
 
-export function unsubscribe(sid: number): string {
+/**
+ * unsubscribe
+ * @param sid subscription id
+ */
+export function unsubscribe(sid: number): void {
   return client.unsubscribe(sid);
 }
 
+/**
+ * close connection
+ */
 export function close(): void {
   if (!client) {
     return;

@@ -1,24 +1,16 @@
+import { Dispatch } from '@reduxjs/toolkit';
 import {
   loadingAction,
   errorAction,
   registeredAction,
   removedAction,
   workersLoadedAction,
-  store$,
 } from './store';
 import * as workerSvc from './worker.client';
+import { WorkerData } from './worker.client';
 
-export interface WorkerInterface {
-  id?: number;
-  name: string;
-  age: string;
-  bio: string;
-  address: string;
-  photo: string | unknown;
-}
-
-export const register = (data: WorkerInterface) => async (
-  dispatch: typeof store$.dispatch
+export const register = (data: WorkerData) => async (
+  dispatch: Dispatch
 ): Promise<void> => {
   dispatch(loadingAction());
   try {
@@ -29,8 +21,8 @@ export const register = (data: WorkerInterface) => async (
   }
 };
 
-export const remove = (id: string) => async (
-  dispatch: typeof store$.dispatch
+export const remove = (id: number) => async (
+  dispatch: Dispatch
 ): Promise<void> => {
   dispatch(loadingAction());
   try {
@@ -41,9 +33,7 @@ export const remove = (id: string) => async (
   }
 };
 
-export const getList = async (
-  dispatch: typeof store$.dispatch
-): Promise<void> => {
+export const getList = async (dispatch: Dispatch): Promise<void> => {
   dispatch(loadingAction());
   try {
     const workers = await workerSvc.list();

@@ -25,8 +25,8 @@ export const loadingAction = createAction(ActionType.loadingAction);
 export const registeredAction = createAction<WorkerInterface, string>(
   ActionType.registeredAction
 );
-export const removedAction = createAction<string>(ActionType.removedAction);
-export const workersLoadedAction = createAction<WorkerInterface, string>(
+export const removedAction = createAction<number>(ActionType.removedAction);
+export const workersLoadedAction = createAction<WorkerInterface[]>(
   ActionType.workersLoadedAction
 );
 export const clearErrorAction = createAction(ActionType.clearErrorAction);

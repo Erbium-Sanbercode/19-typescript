@@ -1,43 +1,58 @@
-import * as redis from 'redis';
+import { ClientOpts, createClient, RedisClient } from 'redis';
 import { promisify } from 'util';
 
-export interface SummaryObj {
-  total_task: number;
-  task_done: number;
-  task_cancelled: number;
-  total_worker: number;
-}
+let client: RedisClient;
 
-let client;
-
-export function connect(options?: []): Promise<string> {
+/**
+ * connect to redis service
+ * @param options connection options
+ */
+export function connect(options?: ClientOpts): Promise<null> {
   return new Promise((resolve, reject) => {
-    client = redis.createClient(options);
-    client.on('connect', () => {
-      resolve('connected to redis');
+    client = createClient({
+      ...options,
+      port: parseInt(options.port.toString(), 10),
     });
-    client.on('error', (err) => {
+    client.on('connect', () => {
+      resolve(null);
+    });
+    client.on('error', (err: Error) => {
       reject(err);
     });
   });
 }
 
-export function save(db: string, data: number): string {
+/**
+ * save data to a db
+ * @param db
+ * @param data
+ */
+export function save(db: string, data: string): Promise<void> {
   const setAsync = promisify(client.set).bind(client);
   return setAsync(db, data);
 }
 
+/**
+ * read data from a db
+ * @param db
+ */
 export async function read(db: string): Promise<string> {
   const getAsync = promisify(client.get).bind(client);
-  const val = await getAsync(db);
-  return JSON.parse(val);
+  return getAsync(db);
 }
 
-export function drop(db: string): Promise<unknown> {
+/**
+ * remove a database
+ * @param db
+ */
+export function drop(db: string): Promise<void> {
   const delAsync = promisify(client.del).bind(client);
   return delAsync(db);
 }
 
+/**
+ * close client connection
+ */
 export function close(): void {
   if (!client) {
     return;

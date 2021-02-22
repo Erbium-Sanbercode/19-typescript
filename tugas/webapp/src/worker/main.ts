@@ -1,27 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { register, getList, remove } from './async-action';
 import { store$, errorAction, clearErrorAction } from './store';
 
 import './main.css';
 
-const form = document.getElementById('form');
-const name = document.getElementById('name');
-const age = document.getElementById('age');
-const photo = document.getElementById('photo');
-const bio = document.getElementById('bio');
-const address = document.getElementById('address');
-const list = document.getElementById('list');
-const errorTxt = document.getElementById('error-text');
-const loadingTxt = document.getElementById('loading-text');
+const form = <HTMLFormElement>document.getElementById('form');
+const name = <HTMLFormElement>document.getElementById('name');
+const age = <HTMLFormElement>document.getElementById('age');
+const photo = <HTMLFormElement>document.getElementById('photo');
+const bio = <HTMLFormElement>document.getElementById('bio');
+const address = <HTMLFormElement>document.getElementById('address');
+const list = <HTMLFormElement>document.getElementById('list');
+const errorTxt = <HTMLFormElement>document.getElementById('error-text');
+const loadingTxt = <HTMLFormElement>document.getElementById('loading-text');
 
 form.onsubmit = (event) => {
   event.preventDefault();
   store$.dispatch(clearErrorAction());
   if (
-    !name.nodeValue ||
-    !age.nodeValue ||
+    !name.value ||
+    !age.value ||
     !photo.files[0] ||
-    !bio.nodeValue ||
-    !address.nodeValue
+    !bio.value ||
+    !address.value
   ) {
     store$.dispatch(errorAction('form isian tidak lengkap!'));
     return;
@@ -30,11 +31,11 @@ form.onsubmit = (event) => {
   // register user
   store$.dispatch<any>(
     register({
-      name: name.nodeValue,
+      name: name.value,
       photo: photo.files[0],
-      age: age.nodeValue,
-      bio: bio.nodeValue,
-      address: address.nodeValue,
+      age: age.value,
+      bio: bio.value,
+      address: address.value,
     })
   );
 
@@ -50,7 +51,7 @@ store$.subscribe(() => {
 const state = store$.getState();
 render(state);
 
-store$.dispatch(getList);
+store$.dispatch<any>(getList);
 
 function render(state) {
   // render error
@@ -73,7 +74,7 @@ function render(state) {
     const rmvBtn = document.createElement('button');
     rmvBtn.innerText = 'hapus';
     rmvBtn.onclick = function () {
-      store$.dispatch(remove(worker.id));
+      store$.dispatch<any>(remove(worker.id));
     };
     li.innerHTML = `
       <img src="${worker.photo}" alt="" width="30px" height="30px" />
