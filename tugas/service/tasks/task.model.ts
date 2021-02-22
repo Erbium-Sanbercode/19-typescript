@@ -1,99 +1,68 @@
-import { EntitySchema } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Worker } from '../worker/worker.model';
 
-export interface TaskData {
-  job: string;
-  assigneeId: number;
-  attachment: string | unknown;
-}
-
-export interface WorkerInterface {
-  id?: number;
-  name: string;
-  age: string;
-  bio: string;
-  address: string;
-  photo: string | unknown;
-}
-
-export interface TaskInterface {
-  id: number;
-  job: string;
-  done: boolean;
-  cancelled: boolean;
-  addedAt: string;
-  attachment: string | unknown;
-  assignee: WorkerInterface;
-}
-/**
- * Task model
- */
+@Entity({
+  name: 'tasks',
+})
 export class Task {
   /**
-   * @param {number} id
-   * @param {string} job
-   * @param {object} assignee
-   * @param {boolean} done
-   * @param {boolean} cancelled
-   * @param {string} attachment
-   * @param {stringg} addedAt
+   * id of a task
    */
-  constructor(
-    public id: number,
-    public job: string,
-    public assignee: WorkerInterface,
-    public done: boolean,
-    public cancelled: boolean,
-    public attachment: string | unknown,
-    public addedAt: string
-  ) {
-    this.id = id;
-    this.job = job;
-    this.done = done;
-    this.cancelled = cancelled;
-    this.addedAt = addedAt;
-    this.attachment = attachment;
-    this.assignee = assignee;
-  }
-}
+  @PrimaryGeneratedColumn()
+  id: number;
 
-export const TaskSchema = new EntitySchema<TaskInterface>({
-  name: 'Task',
-  tableName: 'tasks',
-  target: Task,
-  columns: {
-    id: {
-      type: 'int',
-      primary: true,
-      generated: true,
-    },
-    job: {
-      type: 'text',
-    },
-    done: {
-      type: 'boolean',
-      default: false,
-    },
-    cancelled: {
-      type: 'boolean',
-      default: false,
-    },
-    attachment: {
-      type: 'varchar',
-      length: 255,
-      nullable: true,
-    },
-    addedAt: {
-      type: 'timestamp',
-      name: 'added_at',
-      nullable: false,
-      default: () => 'NOW()',
-    },
-  },
-  relations: {
-    assignee: {
-      target: 'Worker',
-      type: 'many-to-one',
-      onDelete: 'CASCADE',
-    },
-  },
-});
+  /**
+   * task job description
+   */
+  @Column({
+    type: 'text',
+  })
+  job: string;
+
+  /**
+   * true when task already done
+   */
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  done: boolean;
+
+  /**
+   * true when task canceled
+   */
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  cancelled: boolean;
+
+  /**
+   * task attachment
+   */
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  attachment: string;
+
+  /**
+   * time logged when adding new task
+   */
+  @Column({
+    type: 'timestamp',
+    name: 'added_at',
+    nullable: false,
+    default: () => 'NOW()',
+  })
+  addedAt: Date;
+
+  /**
+   * worker assigned for this task
+   */
+  @ManyToOne(() => Worker, {
+    onDelete: 'CASCADE',
+  })
+  assignee: Worker;
+}
