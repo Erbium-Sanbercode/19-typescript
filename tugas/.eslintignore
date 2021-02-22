@@ -1,3 +1,2 @@
 node_modules
-webapp/src/lib
-webapp/src/performance
+*.js

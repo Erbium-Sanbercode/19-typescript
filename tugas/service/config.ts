@@ -1,30 +1,83 @@
-import * as rc from 'rc';
+import rc from 'rc';
 
-const defaultConfig = {
-  database: {
-    type: 'postgres',
+/**
+ * configuration
+ */
+export interface Config {
+  postgres: {
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+    database: string;
+  };
+  minio: {
+    endPoint: string;
+    port: number;
+    useSSL: boolean;
+    accessKey: string;
+    secretKey: string;
+  };
+  nats: {
+    url: string;
+  };
+  redis: {
+    host: string;
+    port: number;
+  };
+  worker: { server: ServerConfig };
+  task: { server: ServerConfig; workerBaseUrl: string };
+  performance: { server: ServerConfig };
+}
+
+/**
+ * server config
+ */
+export interface ServerConfig {
+  port: number;
+}
+
+/**
+ * default configuration
+ */
+const defaultConfig: Config = {
+  postgres: {
     host: 'localhost',
     port: 5432,
     username: 'postgres',
-    password: 'postgres',
+    password: 'passpostgres1997',
     database: 'sanbercode2',
   },
-  server: {
-    workerPort: 7001,
-    taskPort: 7002,
-    performancePort: 7003,
-  },
   minio: {
-    endPoint: '127.0.0.1',
-    port: 9000,
+    endPoint: 'localhost',
+    port: 1111,
     useSSL: false,
-    accessKey: 'local-minio',
-    secretKey: 'local-test-secret',
+    accessKey: 'minio',
+    secretKey: '12345678',
+  },
+  nats: {
+    url: 'nats://localhost:4222',
+  },
+  redis: {
+    host: 'localhost',
+    port: 6379,
+  },
+  worker: {
+    server: {
+      port: 7001,
+    },
+  },
+  task: {
+    server: {
+      port: 7002,
+    },
+    workerBaseUrl: 'http://localhost:7001',
+  },
+  performance: {
+    server: {
+      port: 7001,
+    },
   },
 };
 
-export const config = rc('tm', defaultConfig);
-
-// module.exports = {
-//   config,
-// };
+export const config: Config = rc('tm', defaultConfig) as Config;

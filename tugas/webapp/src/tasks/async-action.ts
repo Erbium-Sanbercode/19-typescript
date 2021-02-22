@@ -1,4 +1,5 @@
-const {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
   loadingAction,
   errorAction,
   doneAction,
@@ -6,11 +7,14 @@ const {
   tasksLoadedAction,
   workersLoadedAction,
   addedAction,
-} = require('./store');
-const workerSvc = require('./worker.client');
-const taskSvc = require('./task.client');
+} from './store';
+import * as workerSvc from './worker.client';
+import * as taskSvc from './task.client';
+import { Dispatch } from '@reduxjs/toolkit';
 
-exports.add = (data) => async (dispatch) => {
+export const add = (data: taskSvc.NewTaskData) => async (
+  dispatch: Dispatch
+): Promise<void> => {
   dispatch(loadingAction());
   try {
     const task = await taskSvc.add(data);
@@ -20,17 +24,21 @@ exports.add = (data) => async (dispatch) => {
   }
 };
 
-exports.done = (id) => async (dispatch) => {
+export const done = (id: number) => async (
+  dispatch: Dispatch
+): Promise<void> => {
   dispatch(loadingAction());
   try {
     await taskSvc.done(id);
-    dispatch(doneAction(id));
+    dispatch<any>(doneAction(id));
   } catch (err) {
     dispatch(errorAction('gagal menyelesaikan pekerjaan'));
   }
 };
 
-exports.cancel = (id) => async (dispatch) => {
+export const cancel = (id: number) => async (
+  dispatch: Dispatch
+): Promise<void> => {
   dispatch(loadingAction());
   try {
     await taskSvc.cancel(id);
@@ -40,7 +48,7 @@ exports.cancel = (id) => async (dispatch) => {
   }
 };
 
-exports.getList = async (dispatch) => {
+export const getList = async (dispatch: Dispatch): Promise<void> => {
   dispatch(loadingAction());
   try {
     const tasks = await taskSvc.list();
@@ -50,7 +58,7 @@ exports.getList = async (dispatch) => {
   }
 };
 
-exports.getWorkersList = async (dispatch) => {
+export const getWorkersList = async (dispatch: Dispatch): Promise<void> => {
   dispatch(loadingAction());
   try {
     const workers = await workerSvc.list();

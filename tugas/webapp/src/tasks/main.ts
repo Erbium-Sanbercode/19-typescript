@@ -1,36 +1,31 @@
-const {
-  done,
-  cancel,
-  getList,
-  add,
-  getWorkersList,
-} = require('./async-action');
-const { store$, errorAction, clearErrorAction } = require('./store');
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { done, cancel, getList, add, getWorkersList } from './async-action';
+import { store$, errorAction, clearErrorAction } from './store';
 
 require('./main.css');
 
-const form = document.getElementById('form');
-const job = document.getElementById('job');
-const assignee = document.getElementById('assignee');
-const attachment = document.getElementById('attachment');
-const list = document.getElementById('list');
-const errorTxt = document.getElementById('error-text');
-const loadingTxt = document.getElementById('loading-text');
+const form = <HTMLFormElement>document.getElementById('form');
+const job = <HTMLFormElement>document.getElementById('job');
+const assignee = <HTMLFormElement>document.getElementById('assignee');
+const attachment = <HTMLFormElement>document.getElementById('attachment');
+const list = <HTMLFormElement>document.getElementById('list');
+const errorTxt = <HTMLFormElement>document.getElementById('error-text');
+const loadingTxt = <HTMLFormElement>document.getElementById('loading-text');
 
 form.onsubmit = (event) => {
   event.preventDefault();
-  store$.dispatch(clearErrorAction());
+  store$.dispatch<any>(clearErrorAction());
   if (
     !job.value ||
     !assignee.options[assignee.selectedIndex] ||
     !attachment.files[0]
   ) {
-    store$.dispatch(errorAction('form isian tidak lengkap!'));
+    store$.dispatch<any>(errorAction('form isian tidak lengkap!'));
     return;
   }
 
   // register user
-  store$.dispatch(
+  store$.dispatch<any>(
     add({
       job: job.value,
       assignee_id: assignee.options[assignee.selectedIndex].value,
@@ -50,8 +45,8 @@ store$.subscribe(() => {
 const state = store$.getState();
 render(state);
 
-store$.dispatch(getList);
-store$.dispatch(getWorkersList);
+store$.dispatch<any>(getList);
+store$.dispatch<any>(getWorkersList);
 
 function render(state) {
   // render error
@@ -61,9 +56,9 @@ function render(state) {
     errorTxt.textContent = '';
   }
   if (state.loading) {
-    loadingTxt.style = '';
+    loadingTxt.setAttribute('style', '');
   } else {
-    loadingTxt.style = 'display:none;';
+    loadingTxt.setAttribute('style', 'display:none;');
   }
 
   // add asignee options
@@ -93,12 +88,12 @@ function render(state) {
       const cancelBtn = document.createElement('button');
       cancelBtn.innerText = 'batal';
       cancelBtn.onclick = function () {
-        store$.dispatch(cancel(task.id));
+        store$.dispatch<any>(cancel(task.id));
       };
       const doneBtn = document.createElement('button');
       doneBtn.innerText = 'selesai';
       doneBtn.onclick = function () {
-        store$.dispatch(done(task.id));
+        store$.dispatch<any>(done(task.id));
       };
       li.innerHTML = innerHtml;
       li.append(cancelBtn, doneBtn);

@@ -1,11 +1,19 @@
-import * as http from 'http';
+import { Worker } from '../worker/worker.model';
+import http from 'http';
+import { config } from '../config';
 
-const WORKER_HOST = 'http://localhost:7001';
-const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
+const { task } = config;
 
-export function info(id: number): Promise<string> {
+export const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
+
+/**
+ * get worker bv it's id
+ * @param id worker id
+ * @throws {@link ERROR_WORKER_NOT_FOUND} when worker not found
+ */
+export function info(id: number): Promise<Worker> {
   return new Promise((resolve, reject) => {
-    const req = http.request(`${WORKER_HOST}/info?id=${id}`, (res) => {
+    const req = http.request(`${task.workerBaseUrl}/info?id=${id}`, (res) => {
       let data = '';
       if (res.statusCode === 404) {
         reject(ERROR_WORKER_NOT_FOUND);
@@ -14,12 +22,15 @@ export function info(id: number): Promise<string> {
         data += chunk.toString();
       });
       res.on('end', () => {
-        const worker = JSON.stringify(data);
+        const worker = JSON.parse(data);
         resolve(worker);
       });
       res.on('error', (err) => {
         reject(err?.message || err.toString());
       });
+    });
+    req.on('error', (err) => {
+      reject(err?.message || err.toString());
     });
     req.end();
   });

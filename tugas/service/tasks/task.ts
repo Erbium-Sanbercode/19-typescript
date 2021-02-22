@@ -1,17 +1,32 @@
 import { getConnection } from 'typeorm';
-import * as workerClient from './worker.client';
+import { info as getWorkerInfo } from './worker.client';
 import * as bus from '../lib/bus';
-import { Task, TaskData, TaskInterface } from './task.model';
+import { Task } from './task.model';
 
 export const ERROR_TASK_DATA_INVALID = 'data pekerjaan baru tidak lengkap';
 export const ERROR_TASK_NOT_FOUND = 'pekerjaan tidak ditemukan';
 export const ERROR_TASK_ALREADY_DONE = 'pekerjaan sudah selesai';
 
-export async function add(data: TaskData): Promise<TaskInterface> {
+/**
+ * task information
+ */
+export interface TaskData {
+  job: string;
+  assigneeId: number;
+  attachment: string;
+}
+
+/**
+ * add new task
+ * @param data task information
+ * @throws {@link ERROR_TASK_DATA_INVALID} when task information incomplete
+ * @throws {@link ERROR_WORKER_NOT_FOUND} when worker not found
+ */
+export async function add(data: TaskData): Promise<Task> {
   if (!data.job || !data.assigneeId) {
     throw ERROR_TASK_DATA_INVALID;
   }
-  await workerClient.info(data.assigneeId);
+  await getWorkerInfo(data.assigneeId);
   const taskRepo = getConnection().getRepository<Task>('Task');
   const newTask = await taskRepo.save({
     job: data.job,
@@ -26,7 +41,13 @@ export async function add(data: TaskData): Promise<TaskInterface> {
   return task;
 }
 
-export async function done(id: number): Promise<unknown> {
+/**
+ * mark task as done
+ * @param id task id
+ * @throws {@link ERROR_TASK_NOT_FOUND} when task not found
+ * @throws {@link ERROR_TASK_ALREADY_DONE} when task already done
+ */
+export async function done(id: number): Promise<Task> {
   const taskRepo = getConnection().getRepository<Task>('Task');
   const task = await taskRepo.findOne(id, { relations: ['assignee'] });
   if (!task || task?.cancelled) {
@@ -41,7 +62,12 @@ export async function done(id: number): Promise<unknown> {
   return task;
 }
 
-export async function cancel(id: number): Promise<unknown> {
+/**
+ * cancel a task
+ * @param id task id
+ * @throws {@link ERROR_TASK_NOT_FOUND} when task not found
+ */
+export async function cancel(id: number): Promise<Task> {
   const taskRepo = getConnection().getRepository<Task>('Task');
   const task = await taskRepo.findOne(id, { relations: ['assignee'] });
   if (!task || task?.cancelled) {
@@ -53,7 +79,10 @@ export async function cancel(id: number): Promise<unknown> {
   return task;
 }
 
-export function list(): Promise<unknown> {
-  const taskRepo = getConnection().getRepository('Task');
+/**
+ * get curretn list of task
+ */
+export function list(): Promise<Task[]> {
+  const taskRepo = getConnection().getRepository<Task>('Task');
   return taskRepo.find({ relations: ['assignee'] });
 }
