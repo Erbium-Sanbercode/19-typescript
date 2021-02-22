@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
+//import * as path from 'path';
 
 module.exports = {
   entry: {
-    tasks: './webapp/src/tasks/main.js',
+    tasks: './webapp/src/tasks/main.ts',
     worker: './webapp/src/worker/main.ts',
     performance: './webapp/src/performance/main.ts',
   },
   output: {
-    path: path.resolve(__dirname, 'www'),
+    path: path.resolve(__dirname, 'webapp/www'),
     filename: '[name].js',
   },
   devtool: 'inline-source-map',

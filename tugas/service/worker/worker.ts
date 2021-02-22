@@ -1,36 +1,58 @@
 import { getConnection } from 'typeorm';
-import { Worker, WorkerInterface } from './worker.model';
+import { Worker } from './worker.model';
 import * as bus from '../lib/bus';
 
 export const ERROR_REGISTER_DATA_INVALID =
   'data registrasi pekerja tidak lengkap';
-export const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
+export const ERROR_WORKER_NOT_FOUND = 'tidak ditemukan';
 
-export async function register(data: WorkerInterface): Promise<Worker> {
+/**
+ * worker data types
+ */
+export interface WorkerData {
+  name: string;
+  age: number;
+  bio: string;
+  address: string;
+  photo: string;
+}
+
+/**
+ * register new worker
+ * @param data new worker information
+ * @throws {@link ERROR_REGISTER_DATA_INVALID} when registration data incomplete
+ */
+export async function register(data: WorkerData): Promise<Worker> {
   if (!data.name || !data.age || !data.bio || !data.address || !data.photo) {
     throw ERROR_REGISTER_DATA_INVALID;
   }
-  const workerRepo = getConnection().getRepository('Worker');
-  const worker = new Worker(
-    null,
-    data.name,
-    parseInt(data.age, 10),
-    data.bio,
-    data.address,
-    data.photo
-  );
+  const workerRepo = getConnection().getRepository<Worker>('Worker');
+  const worker = new Worker();
+  worker.name = data.name;
+  worker.age = parseInt(data.age.toString(), 10);
+  worker.bio = data.bio;
+  worker.address = data.address;
+  worker.photo = data.photo;
   await workerRepo.save(worker);
   bus.publish('worker.registered', worker);
   return worker;
 }
 
-export function list(): Promise<unknown> {
-  const workerRepo = getConnection().getRepository('Worker');
+/**
+ * get list of worker
+ */
+export function list(): Promise<Worker[]> {
+  const workerRepo = getConnection().getRepository<Worker>('Worker');
   return workerRepo.find();
 }
 
-export async function info(id: string | string[]): Promise<unknown> {
-  const workerRepo = getConnection().getRepository('Worker');
+/**
+ * get detail worker information
+ * @param id worker id
+ * @throws {@link ERROR_WORKER_NOT_FOUND} when worker with this id not found
+ */
+export async function info(id: number): Promise<Worker> {
+  const workerRepo = getConnection().getRepository<Worker>('Worker');
   const worker = await workerRepo.findOne(id);
   if (!worker) {
     throw ERROR_WORKER_NOT_FOUND;
@@ -38,8 +60,13 @@ export async function info(id: string | string[]): Promise<unknown> {
   return worker;
 }
 
-export async function remove(id: string | string[]): Promise<unknown> {
-  const workerRepo = getConnection().getRepository('Worker');
+/**
+ * remove a worker
+ * @param id worker id
+ * @throws {@link ERROR_WORKER_NOT_FOUND} when worker with this id not found
+ */
+export async function remove(id: number): Promise<Worker> {
+  const workerRepo = getConnection().getRepository<Worker>('Worker');
   const worker = await workerRepo.findOne(id);
   if (!worker) {
     throw ERROR_WORKER_NOT_FOUND;

@@ -1,8 +1,8 @@
-import { Busboy } from 'busboy';
-import * as url from 'url';
-import { mime } from 'mime-types';
-import { Writable } from 'stream';
 import { IncomingMessage, ServerResponse } from 'http';
+import Busboy from 'busboy';
+import url from 'url';
+import mime from 'mime-types';
+import { Writable, Readable } from 'stream';
 import {
   register,
   list,
@@ -12,14 +12,18 @@ import {
   ERROR_WORKER_NOT_FOUND,
 } from './worker';
 import { saveFile, readFile, ERROR_FILE_NOT_FOUND } from '../lib/storage';
-import { WorkerInterface } from './worker.model';
 
+/**
+ * service to handle worker registration
+ * @param req
+ * @param res
+ */
 export function registerSvc(req: IncomingMessage, res: ServerResponse): void {
   const busboy = new Busboy({ headers: req.headers });
 
-  const data: WorkerInterface = {
+  const data = {
     name: '',
-    age: '0',
+    age: 0,
     bio: '',
     address: '',
     photo: '',
@@ -35,40 +39,43 @@ export function registerSvc(req: IncomingMessage, res: ServerResponse): void {
     }
   }
 
-  busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
-    switch (fieldname) {
-      case 'photo':
-        try {
-          data.photo = await saveFile(file, mimetype);
-        } catch (err) {
-          abort();
-        }
-        if (!req.aborted && finished) {
+  busboy.on(
+    'file',
+    async (fieldname, file: Readable, filename, encoding, mimetype) => {
+      switch (fieldname) {
+        case 'photo':
           try {
-            const worker = await register(data);
-            res.setHeader('content-type', 'application/json');
-            res.write(JSON.stringify(worker));
+            data.photo = await saveFile(file, mimetype);
           } catch (err) {
-            if (err === ERROR_REGISTER_DATA_INVALID) {
-              res.statusCode = 401;
-            } else {
-              res.statusCode = 500;
-            }
-            res.write(err);
+            abort();
           }
-          res.end();
+          if (!req.aborted && finished) {
+            try {
+              const worker = await register(data);
+              res.setHeader('content-type', 'application/json');
+              res.write(JSON.stringify(worker));
+            } catch (err) {
+              if (err === ERROR_REGISTER_DATA_INVALID) {
+                res.statusCode = 401;
+              } else {
+                res.statusCode = 500;
+              }
+              res.write(err);
+            }
+            res.end();
+          }
+          break;
+        default: {
+          const noop = new Writable({
+            write(chunk, encding, callback) {
+              setImmediate(callback);
+            },
+          });
+          file.pipe(noop);
         }
-        break;
-      default: {
-        const noop = new Writable({
-          write(chunk, encding, callback) {
-            setImmediate(callback);
-          },
-        });
-        file.pipe(noop);
       }
     }
-  });
+  );
 
   busboy.on('field', (fieldname, val) => {
     if (['name', 'age', 'bio', 'address'].includes(fieldname)) {
@@ -86,6 +93,11 @@ export function registerSvc(req: IncomingMessage, res: ServerResponse): void {
   req.pipe(busboy);
 }
 
+/**
+ * service to handle worker list endpoint
+ * @param req
+ * @param res
+ */
 export async function listSvc(
   req: IncomingMessage,
   res: ServerResponse
@@ -102,6 +114,11 @@ export async function listSvc(
   }
 }
 
+/**
+ * service to handle info request
+ * @param req
+ * @param res
+ */
 export async function infoSvc(
   req: IncomingMessage,
   res: ServerResponse
@@ -115,7 +132,7 @@ export async function infoSvc(
     return;
   }
   try {
-    const worker = await info(id);
+    const worker = await info(parseInt(id as string, 10));
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(worker));
     res.end();
@@ -132,6 +149,11 @@ export async function infoSvc(
   }
 }
 
+/**
+ * service to handle remove request
+ * @param req
+ * @param res
+ */
 export async function removeSvc(
   req: IncomingMessage,
   res: ServerResponse
@@ -145,7 +167,7 @@ export async function removeSvc(
     return;
   }
   try {
-    const worker = await remove(id);
+    const worker = await remove(parseInt(id as string, 10));
     res.setHeader('content-type', 'application/json');
     res.statusCode = 200;
     res.write(JSON.stringify(worker));
@@ -163,10 +185,15 @@ export async function removeSvc(
   }
 }
 
+/**
+ * service to handle get photo request
+ * @param req
+ * @param res
+ */
 export async function getPhotoSvc(
   req: IncomingMessage,
   res: ServerResponse
-): Promise<unknown> {
+): Promise<void> {
   const uri = url.parse(req.url, true);
   const objectName = uri.pathname.replace('/photo/', '');
   if (!objectName) {
@@ -176,7 +203,7 @@ export async function getPhotoSvc(
   }
   try {
     const objectRead = await readFile(objectName);
-    res.setHeader('Content-Type', mime.lookup(objectName));
+    res.setHeader('Content-Type', mime.lookup(objectName) as string);
     res.statusCode = 200;
     objectRead.pipe(res);
   } catch (err) {

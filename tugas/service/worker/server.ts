@@ -1,5 +1,5 @@
-import { createServer, IncomingMessage, ServerResponse } from 'http';
-import * as url from 'url';
+import { createServer, Server, IncomingMessage, ServerResponse } from 'http';
+import url from 'url';
 import { stdout } from 'process';
 import {
   listSvc,
@@ -9,18 +9,23 @@ import {
   getPhotoSvc,
 } from './worker.service';
 
-let server;
+let server: Server;
 
-export function run(callback: () => unknown): void {
-  server = createServer((req: IncomingMessage, res: ServerResponse) => {
+/**
+ * run server
+ * @param port port to listen to
+ * @param callback called when server stop
+ */
+export function run(port: number, callback?: () => void | Promise<void>): void {
+  server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
     if (aborted) {
       return;
     }
 
-    function respond(statusCode: number, message = ''): void {
-      res.statusCode = statusCode || 200;
+    function respond(statusCode = 200, message = '') {
+      res.statusCode = statusCode;
       res.write(message);
       res.end();
     }
@@ -75,13 +80,20 @@ export function run(callback: () => unknown): void {
   });
 
   // run server
-  const PORT = 7001;
-  server.listen(PORT, () => {
-    stdout.write(`🚀 worker service listening on port ${PORT}\n`);
+  server.listen(port, () => {
+    stdout.write(`🚀 worker service listening on port ${port}\n`);
   });
 }
 
-export function cors(req: IncomingMessage, res: ServerResponse): boolean {
+/**
+ * middleware to handle browser CORS features
+ * @param req
+ * @param res
+ */
+export function cors(
+  req: IncomingMessage,
+  res: ServerResponse
+): boolean | void {
   // handle preflight request
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
@@ -92,12 +104,15 @@ export function cors(req: IncomingMessage, res: ServerResponse): boolean {
   res.setHeader('Access-Control-Allow-Headers', '*');
 
   if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
+    res.writeHead(204);
     res.end();
     return true;
   }
 }
 
+/**
+ * stop server
+ */
 export function stop(): void {
   if (server) {
     server.close();

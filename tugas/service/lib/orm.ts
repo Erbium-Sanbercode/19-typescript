@@ -1,31 +1,19 @@
-/** @module orm */
 import {
-  Connection,
-  ConnectionOptions,
   createConnection,
   EntitySchema,
+  ConnectionOptions,
+  Connection,
 } from 'typeorm';
 
 /**
- * @param {EntitySchema[]} entities model entities schemas
- * @param {*} config additional [`typeorm`](https://typeorm.io) connection config
- *
- * @example
- * // initiate database connection
- * async function init() {
- *  await connect([MySchema], {
- *    type: 'postgres',
- *    host: 'localhost',
- *    port: 5432,
- *    username: 'postgres',
- *    password: 'postgres',
- *    database: 'database_name',
- *  });
- * }
+ * connect to SQL database
+ * @param entities schema entitites
+ * @param config additinal orm configs
  */
 export function connect(
-  entities: EntitySchema[],
-  config?: ConnectionOptions
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  entities: Array<EntitySchema | Function>,
+  config: ConnectionOptions
 ): Promise<Connection> {
   return createConnection({
     ...config,

@@ -1,4 +1,5 @@
 import { SERVICE_BASEURL } from './config';
+import { PayloadAction } from '@reduxjs/toolkit';
 
 type initialStateInterface = {
   loading: boolean;
@@ -8,11 +9,11 @@ type initialStateInterface = {
 
 export interface WorkerInterface {
   id?: number;
-  name?: string;
-  age?: string;
+  name: string;
+  age?: number;
   bio?: string;
   address?: string;
-  photo?: string | unknown;
+  photo?: string;
 }
 // setup state
 export const initialState: initialStateInterface = {
@@ -28,7 +29,7 @@ export function loading(state: initialStateInterface): void {
 
 export function error(
   state: initialStateInterface,
-  action: { payload: unknown }
+  action: PayloadAction
 ): void {
   state.loading = false;
   state.error = action.payload;
