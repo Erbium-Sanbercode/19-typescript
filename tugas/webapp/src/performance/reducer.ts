@@ -1,3 +1,5 @@
+import { PayloadAction } from '@reduxjs/toolkit';
+
 export interface SummaryObj {
   total_task: number;
   task_done: number;
@@ -5,26 +7,14 @@ export interface SummaryObj {
   total_worker: number;
 }
 
-export interface Performance {
+interface State {
   loading: boolean;
-  error: string;
+  error?: Error | string | null;
   summary: SummaryObj;
 }
 
-interface ActionObject {
-  type: string;
-}
-
-interface ActionObjectError extends ActionObject {
-  payload: string;
-}
-
-interface ActionSummaryLoaded extends ActionObject {
-  payload: SummaryObj;
-}
-
 // setup state
-export const initialState: Performance = {
+export const initialState: State = {
   loading: false,
   error: null,
   summary: {
@@ -35,25 +25,25 @@ export const initialState: Performance = {
   },
 };
 
-export function loading(state: Performance): Performance {
+export function loading(state: State): State | void {
   state.loading = true;
   state.error = null;
   return state;
 }
 
 export function error(
-  state: Performance,
-  action: ActionObjectError
-): Performance {
+  state: State,
+  action: PayloadAction<Error | string | null>
+): State | void {
   state.loading = false;
   state.error = action?.payload;
   return state;
 }
 
 export function summaryLoaded(
-  state: Performance,
-  action: ActionSummaryLoaded
-): Performance {
+  state: State,
+  action: PayloadAction<SummaryObj>
+): State | void {
   state.summary = action?.payload;
   state.loading = false;
   state.error = null;

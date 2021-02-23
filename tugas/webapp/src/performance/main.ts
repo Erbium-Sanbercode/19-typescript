@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import './main.css';
+
 import { summary } from './async-action';
 import { store$ } from './store';
-import { Performance } from './reducer';
-import './main.css';
 
 const workers = <HTMLFormElement>document.getElementById('workers');
 const tasks = <HTMLFormElement>document.getElementById('tasks');

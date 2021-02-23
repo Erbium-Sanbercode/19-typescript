@@ -75,7 +75,7 @@ const defaultConfig: Config = {
   },
   performance: {
     server: {
-      port: 7001,
+      port: 7003,
     },
   },
 };
