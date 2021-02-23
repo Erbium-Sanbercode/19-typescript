@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
-//import * as path from 'path';
+const DotenvWebpackPlugin = require('dotenv-webpack');
 
 module.exports = {
   entry: {
@@ -17,6 +17,12 @@ module.exports = {
     contentBase: './webapp/www',
     port: 7000,
   },
+  plugins: [
+    new DotenvWebpackPlugin({
+      path: './.env',
+      safe: true,
+    }),
+  ],
   resolve: {
     extensions: ['.js', '.ts'],
   },

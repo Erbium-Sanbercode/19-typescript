@@ -45,15 +45,15 @@ const defaultConfig: Config = {
     host: 'localhost',
     port: 5432,
     username: 'postgres',
-    password: 'passpostgres1997',
-    database: 'sanbercode2',
+    password: 'passpost',
+    database: 'db_name',
   },
   minio: {
     endPoint: 'localhost',
     port: 1111,
     useSSL: false,
     accessKey: 'minio',
-    secretKey: '12345678',
+    secretKey: 'miniopass',
   },
   nats: {
     url: 'nats://localhost:4222',
