@@ -1,22 +1,39 @@
 {
-  "database": {
-    "type": "postgres",
+  "postgres": {
     "host": "localhost",
     "port": 5432,
     "username": "postgres",
-    "password": "passpost",
+    "password": "postgres",
     "database": "sanbercode"
   },
-  "server": {
-    "workerPort": 7001,
-    "taskPort": 7002,
-    "performancePort": 7003
-  },
   "minio": {
-    "endPoint": "127.0.0.1",
-    "port": 9000,
+    "endPoint": "localhost",
+    "port": 1111,
     "useSSL": false,
-    "accessKey": "minio",
+    "accessKey": "minioadmin",
     "secretKey": "minioadmin"
+  },
+  "nats": {
+    "url": "nats://localhost:4222"
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
+  "worker": {
+    "server": {
+      "port": 7001
+    }
+  },
+  "task": {
+    "server": {
+      "port": 7002
+    },
+    "workerBaseUrl": "http://localhost:7001"
+  },
+  "performance": {
+    "server": {
+      "port": 7003
+    }
   }
 }
