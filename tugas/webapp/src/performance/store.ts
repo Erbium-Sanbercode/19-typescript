@@ -9,7 +9,9 @@ enum ActionType {
   SUMMARYLOADED = 'summaryLoaded',
 }
 
-export const errorAction = createAction<string>(ActionType.ERROR);
+export const errorAction = createAction<Error | string | null>(
+  ActionType.ERROR
+);
 export const loadingAction = createAction(ActionType.LOADING);
 export const summaryLoadedAction = createAction<SummaryObj>(
   ActionType.SUMMARYLOADED

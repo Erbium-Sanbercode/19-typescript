@@ -13,26 +13,26 @@ let increaseCancelledTaskSub;
 let increaseTotalWorkerSub;
 let decreaseTotalWorkerSub;
 
+/**
+ * run performance aggregation service
+ */
 export function run(): void {
-  increaseTotalTaskSub = bus.subscribe(
-    'task.added',
-    increaseTotalTask.toString()
-  );
-  increaseDoneTaskSub = bus.subscribe('task.done', increaseDoneTask.toString());
+  increaseTotalTaskSub = bus.subscribe('task.added', increaseTotalTask);
+  increaseDoneTaskSub = bus.subscribe('task.done', increaseDoneTask);
   increaseCancelledTaskSub = bus.subscribe(
     'task.cancelled',
-    increaseCancelledTask.toString()
+    increaseCancelledTask
   );
   increaseTotalWorkerSub = bus.subscribe(
     'worker.registered',
-    increaseTotalWorker.toString()
+    increaseTotalWorker
   );
-  decreaseTotalWorkerSub = bus.subscribe(
-    'worker.removed',
-    decreaseTotalWorker.toString()
-  );
+  decreaseTotalWorkerSub = bus.subscribe('worker.removed', decreaseTotalWorker);
 }
 
+/**
+ * stop performance aggergation
+ */
 export function stop(): void {
   if (increaseTotalTaskSub) {
     bus.unsubscribe(increaseTotalTaskSub);
